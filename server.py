@@ -46,7 +46,7 @@ def upload():
         file_path = path.join(app.config["UPLOAD_FOLDER"], file_name)
         image_file.save(file_path)
 
-	response = jsonify(get_prediction_ibm(file_path))
+        response = jsonify(get_prediction_ibm(file_path))
     else:
         response = bad_request("Invalid file")
 
@@ -70,12 +70,17 @@ def get_prediction_ibm(file_path):
 
     url = "https://gateway-a.watsonplatform.net/visual-recognition/api/v3/classify?api_key=%s&version=2016-06-11" % env.IBM_BLUEMIX_API_KEY
     payload = [
-	('parameters', ('ibm_params.json', open("ibm_params.json", "rb"), 'application/json')),
-	('images_file', ('image.png', open(file_path, "rb"), 'image/png'))
+       ('parameters', ('ibm_params.json', open("ibm_params.json", "rb"), 'application/json')),
+       ('images_file', ('image.png', open(file_path, "rb"), 'image/png'))
     ]
     response = requests.post(url, files=payload)
     print response.text, type(response.text)
-    return json.loads(response.text)
+    json_response = json.loads(response.text)
+
+    if json_response.get("error"):
+        return bad_request(json_response["error"]["description"])
+
+    return json_response["images"][0]["classifiers"][0]
 
 
 def predict_caffe(frame_files):
