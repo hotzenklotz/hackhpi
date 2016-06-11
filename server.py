@@ -1,16 +1,19 @@
 # System imports
 import subprocess
 import time
+import os
 from os import path
 import shutil
 import math
-
 #import caffe
-
 import numpy as np
 from flask.ext.cors import CORS
 from flask import *
 from werkzeug import secure_filename
+import requests
+import json
+
+import env
 
 static_assets_path = path.join(path.dirname(__file__))
 app = Flask(__name__, static_folder=static_assets_path)
@@ -43,7 +46,7 @@ def upload():
         file_path = path.join(app.config["UPLOAD_FOLDER"], file_name)
         image_file.save(file_path)
 
-        response = jsonify(get_prediction(file_path))
+	response = jsonify(get_prediction_ibm(file_path))
     else:
         response = bad_request("Invalid file")
 
@@ -64,7 +67,15 @@ LABEL_MAPPING = {
 }
 
 def get_prediction_ibm(file_path):
-    pass
+
+    url = "https://gateway-a.watsonplatform.net/visual-recognition/api/v3/classify?api_key=%s&version=2016-06-11" % env.IBM_BLUEMIX_API_KEY
+    payload = [
+	('parameters', ('ibm_params.json', open("ibm_params.json", "rb"), 'application/json')),
+	('images_file', ('image.png', open(file_path, "rb"), 'image/png'))
+    ]
+    response = requests.post(url, files=payload)
+    print response.text, type(response.text)
+    return json.loads(response.text)
 
 
 def predict_caffe(frame_files):
@@ -127,6 +138,8 @@ if __name__ == "__main__":
         CAFFE_SPATIAL_MEAN="/Users/tombocklisch/Documents/Studium/Master Project/models/ilsvrc_2012_mean.npy"  #"/home/mpss2015/caffe/python/caffe/imagenet/ilsvrc_2012_mean.npy"
     )
 
+    if not path.isdir("uploads"):
+	os.mkdir("uploads")
 
     # Start the Flask app
     app.run(port=9000, threaded=True)
