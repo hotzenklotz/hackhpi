@@ -16,7 +16,6 @@ static_assets_path = path.join(path.dirname(__file__))
 app = Flask(__name__, static_folder=static_assets_path)
 CORS(app)
 
-
 # ----- Routes ----------
 @app.route("/", defaults={"fall_through": ""})
 @app.route("/<path:fall_through>")
@@ -27,7 +26,7 @@ def index(fall_through):
         return app.send_static_file("index.html")
 
 
-@app.route("/dist/<path:asset_path>")
+@app.route("/static/<path:asset_path>")
 def send_static(asset_path):
     return send_from_directory(static_assets_path, asset_path)
 
