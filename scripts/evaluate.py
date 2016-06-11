@@ -10,7 +10,7 @@ BATCH_SIZE = 10
 
 def main(data_root):
 
-  classes = ["atypical", "common", "melanoma"]
+  classes = ["benign", "malignant"]
 
   num_correct_global = 0
   num_global = 0
@@ -46,7 +46,7 @@ def main(data_root):
 
 def get_predictions(path, batch):
 
-  url = "https://gateway-a.watsonplatform.net/visual-recognition/api/v3/classify?api_key=%s&version=2016-06-11" % env.IBM_BLUEMIX_API_KEY
+  url = "https://gateway-a.watsonplatform.net/visual-recognition/api/v3/classify?api_key=%s&version=2016-06-11&threshold=0.0" % env.IBM_BLUEMIX_API_KEY
   payload = [
     ('parameters', ('ibm_params.json', open("ibm_params.json", "rb"), 'application/json')),
   ]
