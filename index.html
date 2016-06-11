@@ -10,6 +10,10 @@
 <body>
   <main class="container">
     <h1>Welcome to HackHPI</h2>
+    <form action="/api/upload" method="post" enctype="multipart/form-data">
+      <input name="image" type="file" accept="image/*" capture="camera">
+      <input type="submit" value="Upload Image" name="submit">
+    </form>
   </main>
 </body>
 </html>
