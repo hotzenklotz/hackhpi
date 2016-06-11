@@ -37,7 +37,7 @@ def upload():
     def is_allowed(file_name):
         return len(filter(lambda ext: ext in file_name, ["jpg", "png"])) > 0
 
-    image_file = request.files.getlist("video")[0]
+    image_file = request.files.getlist("image")[0]
 
     if file and is_allowed(image_file.filename):
         file_name = secure_filename(image_file.filename)
