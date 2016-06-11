@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block body %}
+  {% if prediction == "none" %}
+    <h1 class="header center teal-text text-lighten-2">Ooops...</h1>
+  {% endif %}
+  {% if prediction == "common" %}
+    <h1 class="header center teal-text text-lighten-2">All good!</h1>
+  {% endif %}
+  {% if prediction == "atypical" %}
+    <h1 class="header center teal-text text-lighten-2">Caution!</h1>
+  {% endif %}
+  {% if prediction == "melanoma" %}
+    <h1 class="header center teal-text text-lighten-2">Be worried!</h1>
+  {% endif %}
+  <div class="row center">
+    {% if prediction == "none" %}
+      <h5 class="header col s12 light">Sorry, we weren't able to classifier your photo.</h5>
+    {% endif %}
+    {% if prediction == "common" %}
+      <h5 class="header col s12 light">That's the most normal mole I've ever seen.</h5>
+    {% endif %}
+    {% if prediction == "atypical" %}
+      <h5 class="header col s12 light">This mole is atypical. You might want to call a doctor.</h5>
+    {% endif %}
+    {% if prediction == "melanoma" %}
+      <h5 class="header col s12 light">This mole looks super dangerous. We called the ambulance for you.</h5>
+    {% endif %}
+  </div>
+  <div class="row center">
+    {% if prediction == "none" or prediction == "common" %}
+      <a href="/" class="btn-large waves-effect waves-light teal lighten-1">Home</a>
+    {% endif %}
+    {% if prediction == "atypical" or prediction == "melanoma" %}
+      <a href="/" class="btn-large waves-effect waves-light teal lighten-1">Call a doctor</a>
+    {% endif %}
+  </div>
+{% endblock %}

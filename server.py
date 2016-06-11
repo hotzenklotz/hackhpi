@@ -26,13 +26,19 @@ def index(fall_through):
     if fall_through:
         return bad_request("This url does not exist.")
     else:
-        return app.send_static_file("index.html")
+        return render_template("home.html")
 
 
 @app.route("/static/<path:asset_path>")
 def send_static(asset_path):
     return send_from_directory(static_assets_path, asset_path)
 
+
+@app.route("/result")
+def result():
+
+  prediction = request.args.get("prediction")
+  return render_template("result.html", prediction=prediction)
 
 @app.route("/api/upload", methods=["POST"])
 def upload():
@@ -46,11 +52,9 @@ def upload():
         file_path = path.join(app.config["UPLOAD_FOLDER"], file_name)
         image_file.save(file_path)
 
-        response = jsonify(get_prediction_ibm(file_path))
+        return redirect("/result?prediction=%s" % get_prediction_ibm(file_path))
     else:
-        response = bad_request("Invalid file")
-
-    return response
+        return bad_request("Invalid file")
 
 
 def bad_request(reason):
@@ -80,7 +84,12 @@ def get_prediction_ibm(file_path):
     if json_response.get("error"):
         return bad_request(json_response["error"]["description"])
 
-    return json_response["images"][0]["classifiers"][0]
+    classifiers = json_response["images"][0]["classifiers"]
+
+    if len(classifiers) == 0:
+      return "none"
+
+    return classifiers[0]["classes"][0]["class"]
 
 
 def predict_caffe(frame_files):

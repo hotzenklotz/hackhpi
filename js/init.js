@@ -10,6 +10,7 @@
 
     $("#image-upload").on("change", function() {
       $("#submit").click();
+      $("body").addClass("loading");
     });
 
   }); // end of document ready
