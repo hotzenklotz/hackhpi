@@ -1,21 +1,23 @@
 # System imports
 import subprocess
 import time
+import os
 from os import path
 import shutil
 import math
-
 #import caffe
-
 import numpy as np
 from flask.ext.cors import CORS
 from flask import *
 from werkzeug import secure_filename
+import requests
+import json
+
+import env
 
 static_assets_path = path.join(path.dirname(__file__))
 app = Flask(__name__, static_folder=static_assets_path)
 CORS(app)
-
 
 # ----- Routes ----------
 @app.route("/", defaults={"fall_through": ""})
@@ -27,7 +29,7 @@ def index(fall_through):
         return app.send_static_file("index.html")
 
 
-@app.route("/dist/<path:asset_path>")
+@app.route("/static/<path:asset_path>")
 def send_static(asset_path):
     return send_from_directory(static_assets_path, asset_path)
 
@@ -37,14 +39,14 @@ def upload():
     def is_allowed(file_name):
         return len(filter(lambda ext: ext in file_name, ["jpg", "png"])) > 0
 
-    image_file = request.files.getlist("image")[0]
+    image_file = request.files["image"]
 
-    if file and is_allowed(image_file.filename):
+    if image_file and is_allowed(image_file.filename):
         file_name = secure_filename(image_file.filename)
         file_path = path.join(app.config["UPLOAD_FOLDER"], file_name)
         image_file.save(file_path)
 
-        response = jsonify(get_prediction(file_path))
+        response = jsonify(get_prediction_ibm(file_path))
     else:
         response = bad_request("Invalid file")
 
@@ -65,7 +67,20 @@ LABEL_MAPPING = {
 }
 
 def get_prediction_ibm(file_path):
-    pass
+
+    url = "https://gateway-a.watsonplatform.net/visual-recognition/api/v3/classify?api_key=%s&version=2016-06-11" % env.IBM_BLUEMIX_API_KEY
+    payload = [
+       ('parameters', ('ibm_params.json', open("ibm_params.json", "rb"), 'application/json')),
+       ('images_file', ('image.png', open(file_path, "rb"), 'image/png'))
+    ]
+    response = requests.post(url, files=payload)
+    print response.text, type(response.text)
+    json_response = json.loads(response.text)
+
+    if json_response.get("error"):
+        return bad_request(json_response["error"]["description"])
+
+    return json_response["images"][0]["classifiers"][0]
 
 
 def predict_caffe(frame_files):
@@ -128,6 +143,8 @@ if __name__ == "__main__":
         CAFFE_SPATIAL_MEAN="/Users/tombocklisch/Documents/Studium/Master Project/models/ilsvrc_2012_mean.npy"  #"/home/mpss2015/caffe/python/caffe/imagenet/ilsvrc_2012_mean.npy"
     )
 
+    if not path.isdir("uploads"):
+	os.mkdir("uploads")
 
     # Start the Flask app
     app.run(port=9000, threaded=True)
