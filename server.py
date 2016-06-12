@@ -42,10 +42,10 @@ def result():
   prediction = request.args.get("prediction")
   return render_template("result.html", prediction=prediction)
 
-@app.route("/api/upload", methods=["POST"])
+@app.route("/upload", methods=["POST"])
 def upload():
     def is_allowed(file_name):
-        return len(filter(lambda ext: ext in file_name, ["jpg", "png"])) > 0
+	return len(filter(lambda ext: ext in file_name, ["jpg", "jpeg", "png"])) > 0
 
     image_file = request.files["image"]
 
@@ -57,6 +57,22 @@ def upload():
         return redirect("/result?prediction=%s" % get_prediction_ibm(file_path))
     else:
         return bad_request("Invalid file")
+
+
+@app.route("/api/hubot")
+def hubot():
+    def is_allowed(file_name):
+        return len(filter(lambda ext: ext in file_name, ["jpg", "png"])) > 0
+
+    url = request.args.get("url")
+    r = requests.get(url)
+
+    with open('hubot.png', 'wb') as f:
+        f.write(r.content)
+
+
+    return get_prediction_ibm('hubot.png')
+
 
 
 def bad_request(reason):
