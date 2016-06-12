@@ -72,7 +72,7 @@ LABEL_MAPPING = {
 
 def get_prediction_ibm(file_path):
 
-    url = "https://gateway-a.watsonplatform.net/visual-recognition/api/v3/classify?api_key=%s&version=2016-06-11" % env.IBM_BLUEMIX_API_KEY
+    url = "https://gateway-a.watsonplatform.net/visual-recognition/api/v3/classify?api_key=%s&version=2016-06-11&threshold=0.0" % env.IBM_BLUEMIX_API_KEY
     payload = [
        ('parameters', ('ibm_params.json', open("ibm_params.json", "rb"), 'application/json')),
        ('images_file', ('image.png', open(file_path, "rb"), 'image/png'))
