@@ -10,7 +10,7 @@ BATCH_SIZE = 10
 
 def main(data_root):
 
-  classes = ["benign", "malignant"]
+  classes = ["atypical", "common", "melanoma"]
 
   num_correct_global = 0
   num_global = 0
@@ -39,9 +39,10 @@ def main(data_root):
       num_correct_class += len(correct_predictions)
       num_correct_global += len(correct_predictions)
 
-    print("Class accuracy: %d" % (float(num_correct_class) / num_class))
+    print("Class accuracy: %f" % (float(num_correct_class) / num_class))
 
-  print("Global accuracy: %d" % (float(num_correct_global) / num_global))
+  print("Global accuracy: %f" % (float(num_correct_global) / num_global))
+  print(num_correct_global, num_global)
 
 
 def get_predictions(path, batch):
@@ -52,14 +53,21 @@ def get_predictions(path, batch):
   ]
 
   for image in batch:
-    payload.append(('images_file', (image, open(os.path.join(path, image), "rb"), 'image/png')))
+    payload.append(('images_file', (image, open(os.path.join(path, image), "rb"), 'image/jpeg')))
 
   response = requests.post(url, files=payload)
   result = json.loads(response.text)
 
   predicted_classes = []
   for image_result in result["images"]:
-    predicted_classes.append(image_result["classifiers"][0]["classes"][0]["class"])
+    best_class = None
+    best_score = 0
+    for class_prediction in image_result["classifiers"][0]["classes"]:
+      if class_prediction["score"] > best_score:
+        best_score = class_prediction["score"]
+        best_class = class_prediction["class"]
+
+    predicted_classes.append(best_class)
   return predicted_classes
 
 
