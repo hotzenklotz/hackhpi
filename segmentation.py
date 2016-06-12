@@ -70,7 +70,7 @@ class KMeansSegmenter():
 
         labeled_image = labels.reshape(x, y)
         (top, right, bottom, left) = self.get_bounding_rect(labeled_image)
-        return image[left+self.margin:right-self.margin,top+self.margin:bottom-self.margin]
+        return image[left:right,top:bottom]
 
 
 def test():
