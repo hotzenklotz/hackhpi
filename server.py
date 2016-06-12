@@ -11,6 +11,8 @@ from flask import *
 from werkzeug import secure_filename
 import requests
 import json
+from urllib import unquote_plus
+
 
 import env
 import segmentation
@@ -45,7 +47,7 @@ def result():
 @app.route("/upload", methods=["POST"])
 def upload():
     def is_allowed(file_name):
-	return len(filter(lambda ext: ext in file_name, ["jpg", "jpeg", "png"])) > 0
+       return len(filter(lambda ext: ext in file_name, ["jpg", "jpeg", "png"])) > 0
 
     image_file = request.files["image"]
 
@@ -65,8 +67,23 @@ def hubot():
         return len(filter(lambda ext: ext in file_name, ["jpg", "png"])) > 0
 
     url = request.args.get("url")
-    r = requests.get(url)
+    url = unquote_plus(url)
+    url = url.replace("%3A", ":")
 
+    image_url = "/".join(url.split("/")[-2:])
+    url = "https://files.slack.com/files-pri/T02A8MN9K-%s" % image_url
+    url = url.replace(")", "")
+    print "sdsdf", url
+
+    if not url.startswith("https://files.slack.com/files-pri") or url.endswith("%29"):
+	return "none"
+
+
+    cookies = {
+	"a-2349585118": "z%2FXa4%2BshC0AjM4EoOBstQDI8dX0FEQ7vFYwIqqPCeM6TILc4aPtbOVDBaF%2FdddK99dK29Yg78L5XiXpekQpHwg%3D%3D; b=.2vsbbncaocg0g84c8cck80cw8; a-4797900221=ZsxKzPpI%2BzU%2BJwco8flh6MK%2BD1wvciFhk%2BQGkKH9ZN0SiFDDSRG%2FEbC0ipnuRlbjjg3owfQjCDKS753cZrUrFg%3D%3D; a-41227262769=1CHhZwCr%2F1TQ4eeXj3PQSF%2BgB02zJogXTl%2B2qv1WXkl1Kq1AyX23L3AacB3H64FytOru9fHBQ7LyxcbP4eXUBg%3D%3D; tiered_signups=1; lp_l=marsandbeyond,neutrinoinahaystack,waterislife; a-50036087811=BbO9cANuxXHCPY8HcFMWlnD%2BYEd%2F1RXzeJqfgLDL40CJwMfeEqLVrzE118NRqcN%2FvO7FdtLmDpwbLOCwSo%2B6gg%3D%3D; a=2349585118%2C50036087811%2C41227262769%2C4797900221"
+    }
+    r = requests.get(url, cookies=cookies)
+    print "request", r.content
     with open('hubot.png', 'wb') as f:
         f.write(r.content)
 

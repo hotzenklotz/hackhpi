@@ -4,10 +4,8 @@ module.exports = (robot) ->
 
     image_url = escape(msg.match[1])
     server_url = "http://localhost:9000/api/hubot?url=" + image_url
-    #console.log(image_url, server_url)
 
     robot.http(server_url).get() (err, res, body) ->
-      #console.log(arguments)
 
       if err
         msg.send "Encountered an error :( #{err}"
@@ -21,6 +19,8 @@ module.exports = (robot) ->
               "Everything is fine. There is nothing to worry about."
             when "melanoma"
               "This looks nasty. Please see a doctor."
+	    else
+	      ""
 
           msg.send(response)
         when 400
