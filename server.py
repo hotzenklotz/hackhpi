@@ -102,7 +102,15 @@ def preprocess_image(file_path):
 
     image = imread(file_path)
     width, height = image.shape[:2]
+
+    # Crop Image
+    margin_width = 0.2 * width
+    margin_height = 0.2 * height
+    image = image[margin_width:width - margin_width, margin_height:height - margin_height]
+
+    width, height = image.shape[:2]
     aspect_ratio = float(height) / width
+
     height = 300
     width = int(aspect_ratio * height)
     image = imresize(image, (height, width))
