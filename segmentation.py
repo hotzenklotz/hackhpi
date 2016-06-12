@@ -3,6 +3,7 @@ import numpy as np
 from scipy.ndimage import imread, generic_filter
 from scipy.misc import imsave, imresize
 import sys
+import os
 
 class KMeansSegmenter():
     """Finds mole in image and returns bounding rectangle of it"""
@@ -48,7 +49,7 @@ class KMeansSegmenter():
                         top = iy
                     if bottom < iy:
                         bottom = iy
-        
+        print((top, right, bottom, left))
         return (top, right, bottom, left)
 
     def segment(self, image):
@@ -59,14 +60,17 @@ class KMeansSegmenter():
 
         model.fit(points)
         labels = model.labels_
+        print(labels.sum())
         (center0, center1) = model.cluster_centers_
+
+        print((center0, center1))
 
         if (self.average_brightness(center0) < self.average_brightness(center1)):
             labels = self.switch_labels(labels)
 
         labeled_image = labels.reshape(x, y)
         (top, right, bottom, left) = self.get_bounding_rect(labeled_image)
-        return image[left-self.margin:right+self.margin,top-self.margin:bottom+self.margin]
+        return image[left:right,top:bottom]
 
 
 def test():
@@ -76,9 +80,19 @@ def test():
         exit()
     
     filename = sys.argv[1]
-    image = imresize(imread(filename), 20)
+    image = imresize(imread(filename), 50)
     segmented_image = segmenter.segment(image)
     imsave(filename + "-segmented.jpeg", segmented_image)
 
+def segment_dataset():
+    segmenter = KMeansSegmenter()
+    for folder in ['data/train', 'data/test']:
+        for subfolder in ['benign', 'malignant']:
+            for file in os.listdir(os.path.join(folder, subfolder)):
+                image = imread(os.path.join(folder, subfolder, file))
+                segmented_image  = segmenter.segment(image)
+                imsave(os.path.join(folder + '_segmented', subfolder, file), segmented_image)
+
 if __name__ == "__main__":
-    test()  
+    # test()  
+    segment_dataset()
