@@ -16,8 +16,22 @@
   display: none;
 }
 
+#loader {
+  display: none;
+  z-index: 1000;
+  margin: auto;
+}
+
+body.loading #loader {
+  display: block;
+}
+
 body.loading #overlay{
   display: block;
+}
+
+body.loading #sendpicture, body.loading #form {
+  display: none;
 }
 
 nav ul a,

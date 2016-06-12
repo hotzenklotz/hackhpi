@@ -3,9 +3,22 @@
 {% block body %}
   <h1 class="header center teal-text text-lighten-2">Check your moles!</h1>
   <div class="row center">
-    <h5 class="header col s12 light">Send us a picture of your mole!</h5>
+    <h5 id="sendpicture" class="header col s12 light">Send us a picture of your mole!</h5>
   </div>
   <div class="row center">
+    <div class="col s12 ">
+      <div id="loader" class="preloader-wrapper big active">
+        <div class="spinner-layer spinner-blue-only">
+          <div class="circle-clipper left">
+            <div class="circle"></div>
+          </div><div class="gap-patch">
+            <div class="circle"></div>
+          </div><div class="circle-clipper right">
+            <div class="circle"></div>
+          </div>
+        </div>
+      </div>
+    </div>
     <form id="form" action="/upload" method="post" enctype="multipart/form-data">
       <a id="photo-button" class="btn-large waves-effect waves-light teal lighten-1">Take a Picture</a>
       <input id="image-upload" name="image" type="file" accept="image/*" style="display:none" capture="camera">
