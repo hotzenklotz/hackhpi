@@ -4,7 +4,7 @@ module.exports = (robot) ->
 
     image_url = escape(msg.match[1])
     server_url = "http://localhost:9000/api/hubot?url=" + image_url
-    console.log(image_url, server_url)
+    #console.log(image_url, server_url)
 
     robot.http(server_url).get() (err, res, body) ->
       #console.log(arguments)
@@ -25,4 +25,3 @@ module.exports = (robot) ->
           msg.send(response)
         when 400
           msg.send("Ups. Something went wront with the mole server")
-  # your code here

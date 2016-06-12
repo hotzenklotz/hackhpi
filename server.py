@@ -45,7 +45,7 @@ def result():
 @app.route("/upload", methods=["POST"])
 def upload():
     def is_allowed(file_name):
-        return len(filter(lambda ext: ext in file_name, ["jpg", "png"])) > 0
+	return len(filter(lambda ext: ext in file_name, ["jpg", "jpeg", "png"])) > 0
 
     image_file = request.files["image"]
 
