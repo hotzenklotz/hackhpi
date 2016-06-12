@@ -32,17 +32,29 @@ def main(data_root):
       end_index = min(len(files), BATCH_SIZE * batch + BATCH_SIZE)
       predicted_classes = get_predictions(os.path.join(data_root, correct_class),
                                           files[start_index:end_index])
-      correct_predictions = [predicted_class
-                             for predicted_class in predicted_classes
-                             if predicted_class == correct_class]
 
+      immages, classes, scores = zip(*predicted_classes)
+
+      correct_predictions = [predicted_class
+                             for predicted_class in classes
+                             if predicted_class == correct_class]
       num_correct_class += len(correct_predictions)
       num_correct_global += len(correct_predictions)
+
+      best_score = 0
+      best_image = None
+      for (image, p_class, score) in predicted_classes:
+        if p_class == correct_class:
+          if score > best_score:
+            best_score = score
+            best_image = image
+
+      print("Best in batch: %s, %f" % (best_image, best_score))
+
 
     print("Class accuracy: %f" % (float(num_correct_class) / num_class))
 
   print("Global accuracy: %f" % (float(num_correct_global) / num_global))
-  print(num_correct_global, num_global)
 
 
 def get_predictions(path, batch):
@@ -60,6 +72,7 @@ def get_predictions(path, batch):
 
   predicted_classes = []
   for image_result in result["images"]:
+    image_name = image_result["image"]
     best_class = None
     best_score = 0
     for class_prediction in image_result["classifiers"][0]["classes"]:
@@ -67,7 +80,7 @@ def get_predictions(path, batch):
         best_score = class_prediction["score"]
         best_class = class_prediction["class"]
 
-    predicted_classes.append(best_class)
+    predicted_classes.append((image_name, best_class, best_score))
   return predicted_classes
 
 
